@@ -7,6 +7,8 @@ Author: https://github.com/raphigaziano
 from markdown.extensions import Extension
 from markdown.treeprocessors import Treeprocessor
 
+from .utils import get_callback
+
 
 class AutoAttrsTreeprocessor(Treeprocessor):
 
@@ -25,6 +27,10 @@ class AutoAttrsTreeprocessor(Treeprocessor):
             self.process_tree(child)
 
     def process_element(self, element, attrs):
+        # callback handling
+        if (callback := get_callback(attrs)):
+            return callback(element, self.md)
+        # static attr dict
         for k, v in attrs.items():
             self.set_attr(element, k, v)
 

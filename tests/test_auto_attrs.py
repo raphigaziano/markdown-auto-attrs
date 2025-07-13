@@ -1,9 +1,11 @@
+import os
+import sys
 import unittest
 
 import markdown
 
 
-class TestAutoAttrs(unittest.TestCase):
+class BaseTestCase(unittest.TestCase):
 
     def md(self, source, **config):
         if 'element_attrs' not in config:
@@ -16,6 +18,9 @@ class TestAutoAttrs(unittest.TestCase):
                 'auto-attrs': config,
             })
         return md.convert(source)
+
+
+class TestAutoAttrs(BaseTestCase):
 
     def test_base(self):
         result = self.md('Lorem Ipsum', p={'class': 'auto-generated'})
@@ -68,3 +73,33 @@ class TestAutoAttrs(unittest.TestCase):
             element_attrs={'h1': {'title': 'global-title'}},
             ignore_value='custom-ignore-value')
         self.assertIn('<h1>title</h1', result)
+
+
+def importable_callback(e, md):
+    if 'cats' in e.get('src'):
+        e.set('class', 'kitty')
+
+
+class TestAutoAttrsCallbacks(BaseTestCase):
+
+    def setUp(self):
+        # Add test dir to the path to be able to import stuff from it.
+        sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+
+    def test_callable(self):
+
+        def callback(e, md):
+            alt = e.get('alt')
+            e.set('alt', alt.upper())
+
+        result = self.md(
+            '![alt](/path/to/img.jpg)', img=callback)
+        self.assertIn('<img alt="ALT" src="/path/to/img.jpg" />', result)
+
+    def test_dynamic_callable_import(self):
+        result = self.md(
+            '![alt](/path/to/cats/img.jpg)',
+            img='tests.test_auto_attrs.importable_callback')
+        self.assertIn(
+            '<img alt="alt" class="kitty" src="/path/to/cats/img.jpg" />',
+            result)
