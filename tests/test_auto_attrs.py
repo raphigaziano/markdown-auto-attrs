@@ -74,6 +74,18 @@ class TestAutoAttrs(BaseTestCase):
             ignore_value='custom-ignore-value')
         self.assertIn('<h1>title</h1', result)
 
+    def test_failure_mode(self):
+        # silent failure is the default
+        with self.assertLogs('markdown_auto_attrs.extension', 'ERROR'):
+            result = self.md('Lorem Ipsum', p='not-a-dict')
+            self.assertEqual(result, '<p>Lorem Ipsum</p>')
+
+        with self.assertRaises(AttributeError):
+            result = self.md(
+                'Lorem Ipsum',
+                element_attrs={'p': ['not-a-dict']},
+                fail_silently=False)
+
 
 def importable_callback(e, md):
     if 'cats' in e.get('src'):

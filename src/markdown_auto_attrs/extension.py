@@ -4,10 +4,14 @@ Python markdown extension to set arbitrary attributes generated html elements.
 Author: https://github.com/raphigaziano
 
 """
+import logging
+
 from markdown.extensions import Extension
 from markdown.treeprocessors import Treeprocessor
 
 from .utils import get_callback
+
+logger = logging.getLogger(__name__)
 
 
 class AutoAttrsTreeprocessor(Treeprocessor):
@@ -15,10 +19,16 @@ class AutoAttrsTreeprocessor(Treeprocessor):
     def __init__(self, *args, **kwargs):
         self.element_attrs = kwargs.pop('element_attrs')
         self.ignore_value = kwargs.pop('ignore_value')
+        self.fail_silently = kwargs.pop('fail_silently')
         super(AutoAttrsTreeprocessor, self).__init__(*args, **kwargs)
 
     def run(self, root):
-        self.process_tree(root)
+        try:
+            self.process_tree(root)
+        except Exception as err:
+            if not self.fail_silently:
+                raise
+            logger.exception(err)
 
     def process_tree(self, parent):
         for child in parent:
@@ -53,6 +63,11 @@ class AutoAttrsExtension(Extension):
                 'Attributes containing this value will be removed instead of '
                 'being set to the global value provided in the '
                 '`element_attrs` dict'
+            ],
+            'fail_silently': [
+                True,
+                'Silenttly ignore errors (those will still be logged). Turn '
+                'off for debugging.'
             ],
         }
         super(AutoAttrsExtension, self).__init__(**kwargs)
