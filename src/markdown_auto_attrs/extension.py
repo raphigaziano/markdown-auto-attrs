@@ -21,17 +21,20 @@ class AutoAttrsTreeprocessor(Treeprocessor):
     def process_tree(self, parent):
         for child in parent:
             if (attrs := self.element_attrs.get(child.tag, None)):
-                self.add_attrs(child, attrs)
+                self.process_element(child, attrs)
             self.process_tree(child)
 
-    def add_attrs(self, element, attrs):
+    def process_element(self, element, attrs):
         for k, v in attrs.items():
-            local_attr = element.get(k)
-            if local_attr == self.ignore_value:
-                del element.attrib[k]
-                continue
-            if not local_attr:
-                element.set(k, v)
+            self.set_attr(element, k, v)
+
+    def set_attr(self, element, attr_name, attr_val):
+        local_attr = element.get(attr_name)
+        if local_attr == self.ignore_value:
+            del element.attrib[attr_name]
+            return
+        if not local_attr:
+            element.set(attr_name, attr_val)
 
 
 class AutoAttrsExtension(Extension):
