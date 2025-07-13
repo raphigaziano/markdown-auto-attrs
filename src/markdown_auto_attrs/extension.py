@@ -12,6 +12,7 @@ class AutoAttrsTreeprocessor(Treeprocessor):
 
     def __init__(self, *args, **kwargs):
         self.element_attrs = kwargs.pop('element_attrs')
+        self.ignore_value = kwargs.pop('ignore_value')
         super(AutoAttrsTreeprocessor, self).__init__(*args, **kwargs)
 
     def run(self, root):
@@ -26,6 +27,9 @@ class AutoAttrsTreeprocessor(Treeprocessor):
     def add_attrs(self, element, attrs):
         for k, v in attrs.items():
             local_attr = element.get(k)
+            if local_attr == self.ignore_value:
+                del element.attrib[k]
+                continue
             if not local_attr:
                 element.set(k, v)
 
@@ -35,6 +39,12 @@ class AutoAttrsExtension(Extension):
     def __init__(self, **kwargs):
         self.config = {
             'element_attrs': [{}, 'Attribute mapping.'],
+            'ignore_value': [
+                '__auto_attrs_ignore',
+                'Attributes containing this value will be removed instead of '
+                'being set to the global value provided in the '
+                '`element_attrs` dict'
+            ],
         }
         super(AutoAttrsExtension, self).__init__(**kwargs)
 

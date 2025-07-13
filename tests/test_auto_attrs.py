@@ -6,12 +6,14 @@ import markdown
 class TestAutoAttrs(unittest.TestCase):
 
     def md(self, source, **config):
+        if 'element_attrs' not in config:
+            config = {'element_attrs': config}
         md = markdown.Markdown(
             # extra extension is bundled by default with python-markdown and
             # will simplify testing manually set attributes.
             extensions=['extra', 'auto-attrs'],
             extension_configs={
-                'auto-attrs': {'element_attrs': config}
+                'auto-attrs': config,
             })
         return md.convert(source)
 
@@ -59,3 +61,10 @@ class TestAutoAttrs(unittest.TestCase):
             '**strong**{class="__auto_attrs_ignore"}',
             strong={'class': 'should-be-ignored'})
         self.assertIn('<strong>strong</strong>', result)
+
+    def test_auto_attr_ignore_custom_value(self):
+        result = self.md(
+            '# title {title="custom-ignore-value"}',
+            element_attrs={'h1': {'title': 'global-title'}},
+            ignore_value='custom-ignore-value')
+        self.assertIn('<h1>title</h1', result)
