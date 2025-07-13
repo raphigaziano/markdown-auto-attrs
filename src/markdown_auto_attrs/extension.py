@@ -20,9 +20,14 @@ class AutoAttrsTreeprocessor(Treeprocessor):
     def process_tree(self, parent):
         for child in parent:
             if (attrs := self.element_attrs.get(child.tag, None)):
-                for k, v in attrs.items():
-                    child.set(k, v)
+                self.add_attrs(child, attrs)
             self.process_tree(child)
+
+    def add_attrs(self, element, attrs):
+        for k, v in attrs.items():
+            local_attr = element.get(k)
+            if not local_attr:
+                element.set(k, v)
 
 
 class AutoAttrsExtension(Extension):

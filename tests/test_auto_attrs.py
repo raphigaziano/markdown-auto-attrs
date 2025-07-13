@@ -7,7 +7,9 @@ class TestAutoAttrs(unittest.TestCase):
 
     def md(self, source, **config):
         md = markdown.Markdown(
-            extensions=['auto-attrs'],
+            # extra extension is bundled by default with python-markdown and
+            # will simplify testing manually set attributes.
+            extensions=['extra', 'auto-attrs'],
             extension_configs={
                 'auto-attrs': {'element_attrs': config}
             })
@@ -45,3 +47,15 @@ class TestAutoAttrs(unittest.TestCase):
         self.assertIn(
             '<img alt="alt text" loading="lazy" src="/link/to/img.png" />',
             result)
+
+    def test_attr_overides(self):
+        result = self.md(
+            '[link name](http://url.net "local")', a={'title': 'global'})
+        self.assertIn(
+            '<a href="http://url.net" title="local">link name</a>', result)
+
+    def test_auto_attr_ignore(self):
+        result = self.md(
+            '**strong**{class="__auto_attrs_ignore"}',
+            strong={'class': 'should-be-ignored'})
+        self.assertIn('<strong>strong</strong>', result)
