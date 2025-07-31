@@ -76,7 +76,7 @@ class AutoAttrsExtension(Extension):
         md.treeprocessors.register(
             AutoAttrsTreeprocessor(md, **self.getConfigs()),
             'auto_attrs',
-            -9998
+            0
         )
 
 

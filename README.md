@@ -113,8 +113,8 @@ with a reference to a callable to get a little more control:
 ```python
 # callbacks.py
 def my_callback(element, md):
-  if 'cats' in e.get('src'):
-      e.set('class', 'kitty')
+    if 'cats' in e.get('src'):
+        e.set('class', 'kitty')
 
 # main.py
 import markdown
