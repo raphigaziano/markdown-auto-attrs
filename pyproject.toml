@@ -8,7 +8,9 @@ authors = [
     { name = "rga", email = "contact@rgaz.fr" }
 ]
 requires-python = ">=3.10"
-dependencies = []
+dependencies = [
+    "markdown>=3.8.2",
+]
 
 [project.entry-points.'markdown.extensions']
 auto-attrs = 'markdown_auto_attrs.extension:AutoAttrsExtension'
@@ -19,6 +21,5 @@ build-backend = "hatchling.build"
 
 [dependency-groups]
 test = [
-    "markdown>=3.8.2",
     "pytest>=8.4.1",
 ]
