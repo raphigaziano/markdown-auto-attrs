@@ -146,6 +146,39 @@ Callbacks get passed the current element being processed, as well as an instance
 of the running `Markdown` object, from which you can get access to the parser,
 document root, etc.
 
+Optionally, they can return a new html element to replace the one that's being
+processed:
+
+```python
+# callbacks.py
+def my_callback(element, md):
+    # wrap the current element in a link tag
+    link_element = element.makeelement('a', {'href': 'http://example.com'})
+    link_element.append(e)
+    return link_element
+
+# main.py
+import markdown
+
+s = '![alt text](/link/to/cats/img.png)'
+extensions = ['auto-attrs']
+extension_configs = {
+    'auto-attrs': {
+        'element_attrs': {
+            'img': my_callback
+        }
+    },
+}
+
+print(markdown.markdown(s, extensions=extensions, extension_configs=extension_configs))
+```
+
+Output:
+
+```html
+<p><a href="http://example.com"><img alt="alt text" src="/link/to/cats/img.png" class="kitty" /></a></p>
+```
+
 ## Overriding attributes
 
 If an element already defines an attribute listed in the global mapping, then

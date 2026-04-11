@@ -115,3 +115,19 @@ class TestAutoAttrsCallbacks(BaseTestCase):
         self.assertIn(
             '<img alt="alt" class="kitty" src="/path/to/cats/img.jpg" />',
             result)
+
+    def test_callback_returning_a_new_element(self):
+
+        def callback(e, md):
+            link_attrs = {
+                'href': e.attrib['src'],
+            }
+            new_element = e.makeelement('a', link_attrs)
+            new_element.append(e)
+            return new_element
+
+        result = self.md(
+            '![alt](/path/to/img.jpg)', img=callback)
+        self.assertIn(
+            '<a href="/path/to/img.jpg"><img alt="alt" src="/path/to/img.jpg" /></a>',
+            result)

@@ -31,9 +31,11 @@ class AutoAttrsTreeprocessor(Treeprocessor):
             logger.exception(err)
 
     def process_tree(self, parent):
-        for child in parent:
+        for i, child in enumerate(parent):
             if (attrs := self.element_attrs.get(child.tag, None)):
-                self.process_element(child, attrs)
+                new_child = self.process_element(child, attrs)
+                if new_child and new_child != child:
+                    parent[i] = new_child
             self.process_tree(child)
 
     def process_element(self, element, attrs):
